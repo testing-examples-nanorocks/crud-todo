@@ -1,17 +1,25 @@
-import express, {Express, Request, Response} from 'express';
-const app:Express = express();
+import express, { Express, Request, Response } from "express";
+import { graphqlHTTP } from "express-graphql";
+import { buildSchema } from "graphql";
 
-app.use(express.json());
+const schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
+
+const root = { hello: () => 'Hello world!' };
+
+const app: Express = express();
+
 const PORT = 3000;
 
-app.get('/',(req: Request, res: Response, next) => {
-    res.status(200).json({
-        'message': 'Running Node with Express and Typescript'
-    });
-});
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    rootValue: root,
+    graphiql: true,
+}));
 
 app.listen(PORT, () => {
-    console.log(
-        `Server running on ${PORT}.`
-    )
+  console.log(`Server running on ${PORT}.`);
 });
